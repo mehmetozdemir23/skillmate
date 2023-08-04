@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', fn () => redirect()->route('dashboard'));
+Route::get('/', fn () => redirect()->route('serviceBoard'));
 
 Route::get('/service-board', [ServiceController::class, 'serviceBoard'])->middleware(['auth', 'verified'])->name('serviceBoard');
 
