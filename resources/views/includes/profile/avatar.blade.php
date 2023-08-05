@@ -63,7 +63,7 @@
         const input = document.getElementById('avatarInput');
         input.value = '';
         document.getElementById('avatarPreview').src =
-            "{{ asset('storage/avatars/' . $user->avatar)) }}";
+            "{{ asset('storage/avatars/' . $user->avatar) }}";
         document.getElementById('uploadLabel').classList.remove('hidden');
         document.getElementById('submitButton').classList.add('hidden');
         document.getElementById('cancelButton').classList.add('hidden');
