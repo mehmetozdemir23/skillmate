@@ -54,7 +54,6 @@
                 document.getElementById('uploadLabel').classList.add('hidden');
                 document.getElementById('submitButton').classList.remove('hidden');
                 document.getElementById('cancelButton').classList.remove('hidden');
-                document.getElementById('cancelText').classList.remove('hidden');
             };
             reader.readAsDataURL(input.files[0]);
         }
@@ -64,10 +63,9 @@
         const input = document.getElementById('avatarInput');
         input.value = '';
         document.getElementById('avatarPreview').src =
-            "{{ asset('storage/avatars/' . ($user->avatar ?? 'default-avatar.png')) }}";
+            "{{ asset('storage/avatars/' . $user->avatar)) }}";
         document.getElementById('uploadLabel').classList.remove('hidden');
         document.getElementById('submitButton').classList.add('hidden');
         document.getElementById('cancelButton').classList.add('hidden');
-        document.getElementById('cancelText').classList.add('hidden');
     }
 </script>
