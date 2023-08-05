@@ -2,7 +2,7 @@
     $user = Auth::user();
 @endphp
 <div class="relative">
-    <img id="avatar-image" type="button" class="h-8 rounded-full cursor-pointer mr-2"
+    <img id="avatar-image" type="button" class="w-8 h-8 rounded-full cursor-pointer mr-2 object-cover"
         src="{{ asset('storage/avatars/' . $user->avatar) }}" alt="User dropdown">
     <div id="user-dropdown"
         class="hidden absolute top-100 right-0 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
