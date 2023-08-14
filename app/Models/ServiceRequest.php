@@ -11,7 +11,7 @@ class ServiceRequest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'service_id', 'notes'];
+    protected $fillable = ['sender_id', 'service_id', 'notes'];
 
     public function service(): BelongsTo
     {
@@ -25,6 +25,6 @@ class ServiceRequest extends Model
 
     public function sender(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'sender_id');
     }
 }

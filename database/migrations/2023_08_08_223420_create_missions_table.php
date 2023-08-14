@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('service_requests', function (Blueprint $table) {
+        Schema::create('missions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
-            $table->unsignedBigInteger('sender_id');
+            $table->foreignId('service_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('receiver_id');
             $table->string('status')->default('pending');
-            $table->text('notes')->nullable();
             $table->timestamps();
 
-            $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('service_requests');
+        Schema::dropIfExists('missions');
     }
 };

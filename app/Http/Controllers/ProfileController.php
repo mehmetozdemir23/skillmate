@@ -67,7 +67,7 @@ class ProfileController extends Controller
         $uploadedFile->storeAs('avatars', $avatarName, 'public');
 
         $user = Auth::user();
-        if ($user->avatar) {
+        if ($user->avatar == 'default-avatar.png') {
             Storage::disk('public')->delete('avatars/' . $user->avatar);
         }
         $user->avatar = $avatarName;

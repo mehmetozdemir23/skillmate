@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Mission;
 use App\Models\Service;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -12,6 +13,7 @@ use Illuminate\View\View;
 
 class ServiceRequestController extends Controller
 {
+    /*
     public function serviceRequestsSent(Request $request): View
     {
         $request->validate([
@@ -80,41 +82,100 @@ class ServiceRequestController extends Controller
         $serviceRequestsReceived = $serviceRequestsReceived->get();
 
         return view('pages.service_requests.received', compact('serviceRequestsReceived', 'sortOrder'));
+    }*/
+    public function sentServiceRequests(Request $request): View
+    {
+        $request->validate([
+            'sort-by-column' => 'nullable|string|in:receiver,services.title,created_at,status',
+            'order' => 'nullable|string|in:asc,desc',
+        ]);
+
+        $user = Auth::user();
+        $sortByColumn = 'created_at';
+        $sortOrder = 'asc';
+        $sentServiceRequests = $user->sentServiceRequests();
+
+        if ($request->filled('sort-by-column') && $request->filled('order')) {
+            $sortByColumn = $request->get('sort-by-column');
+            $sortOrder = $request->get('order');
+
+            if ($sortByColumn == 'receiver') {
+                $sentServiceRequests->join('services', 'service_requests.service_id', '=', 'services.id')
+                    ->select('services.user_id')
+                    ->join('users', 'services.user_id', '=', 'users.id')
+                    ->select(['users.name', 'service_requests.*'])->orderBy('users.name', $sortOrder);
+            } else if ($sortByColumn == 'services.title') {
+                $sentServiceRequests->join('services', 'service_requests.service_id', '=', 'services.id')
+                    ->select(['services.title', 'service_requests.*'])->orderBy('services.title', $sortOrder);
+            } else {
+                $sentServiceRequests->orderBy($sortByColumn, $sortOrder);
+            }
+
+            $sortOrder = $sortOrder == 'asc' ? 'desc' : 'asc';
+        }
+
+        $sentServiceRequests = $sentServiceRequests->get();
+
+        return view('pages.service_requests.sent', compact('sentServiceRequests', 'sortOrder'));
     }
 
-    public function create(Request $request): View
+    public function receivedServiceRequests(Request $request): View
     {
-        $requestedService = Service::find($request->service_id);
+        $sortByColumn = $request->get('sort-by-column') ?? 'created_at';
+        $sortOrder = $request->get('order') ?? 'asc';
+
+        $user = Auth::user();
+        $receivedServiceRequests = $user->receivedServiceRequests();
+
+        $receivedServiceRequests->orderBy($sortByColumn, $sortOrder);
+        $sortOrder = $sortOrder == 'asc' ? 'desc' : 'asc';
+
+        $receivedServiceRequests = $receivedServiceRequests->get();
+
+        return view('pages.service_requests.received', compact('receivedServiceRequests', 'sortOrder'));
+    }
+
+    public function create(Service $service): View
+    {
+        $requestedService = $service;
         $requestSender = Auth::user();
-        $requestReceiver = User::find($request->receiver_id);
+        $requestReceiver = $service->user;
+
         return view('pages.service_requests.create', compact(['requestSender', 'requestReceiver', 'requestedService']));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function show(Service $service, ServiceRequest $serviceRequest): View
     {
+        return view('pages.service_requests.show', compact('serviceRequest'));
+    }
+
+    public function store(Service $service, Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
         ServiceRequest::create([
-            'user_id' => Auth::user()->id,
-            'service_id' => $request->service_id,
+            'sender_id' => $user->id,
+            'service_id' => $service->id,
             'notes' => $request->notes
         ]);
 
         return redirect()->route('serviceRequests.sent');
     }
 
-    public function show(ServiceRequest $serviceRequest): View
-    {
-        return view('pages.service_requests.show', compact('serviceRequest'));
-    }
-
-    public function accept(ServiceRequest $serviceRequest): RedirectResponse
+    public function accept(Service $service, ServiceRequest $serviceRequest): RedirectResponse
     {
         $serviceRequest->status = 'accepted';
         $serviceRequest->save();
 
-        return redirect()->route('serviceRequests.index');
+        Mission::create([
+            'service_id' => $serviceRequest->service->id,
+            'receiver_id' => $serviceRequest->sender->id
+        ]);
+
+        return redirect()->route('serviceRequests.received');
     }
 
-    public function decline(ServiceRequest $serviceRequest): RedirectResponse
+    public function decline(Service $service, ServiceRequest $serviceRequest): RedirectResponse
     {
         $serviceRequest->status = 'declined';
         $serviceRequest->save();
@@ -122,7 +183,7 @@ class ServiceRequestController extends Controller
         return redirect()->route('serviceRequests.received');
     }
 
-    public function undo(ServiceRequest $serviceRequest): RedirectResponse
+    public function undo(Service $service, ServiceRequest $serviceRequest): RedirectResponse
     {
         $serviceRequest->status = 'pending';
         $serviceRequest->save();
@@ -130,10 +191,10 @@ class ServiceRequestController extends Controller
         return back();
     }
 
-    public function destroy(ServiceRequest $serviceRequest): RedirectResponse
+    public function destroy(Service $service, ServiceRequest $serviceRequest): RedirectResponse
     {
         $serviceRequest->delete();
-        
+
         return back();
     }
 }

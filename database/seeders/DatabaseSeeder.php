@@ -2,12 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\Models\Mission;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\ServiceRequest;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -38,6 +40,17 @@ class DatabaseSeeder extends Seeder
             'name' => 'Database Management',
         ]);
 
+        // Bind skills to users
+        $skill_user1 = DB::table('skill_user')->insert([
+            'user_id'=>$user1->id,
+            'skill_id'=>$skill1->id
+        ]);
+
+        $skill_user2 = DB::table('skill_user')->insert([
+            'user_id'=>$user2->id,
+            'skill_id'=>$skill2->id
+        ]);
+
         // Create services offered
         $service1 = Service::create([
             'user_id' => $user1->id,
@@ -55,52 +68,19 @@ class DatabaseSeeder extends Seeder
 
         // Create service requests
         $serviceRequest1 = ServiceRequest::create([
-            'user_id' => $user2->id,
+            'sender_id' => $user2->id,
             'service_id' => $service1->id,
             'notes' => 'I need a custom website for my small business.',
         ]);
 
         $serviceRequest2 = ServiceRequest::create([
-            'user_id' => $user1->id,
+            'sender_id' => $user1->id,
             'service_id' => $service2->id,
             'notes' => 'I need help optimizing my database queries.',
         ]);
 
-        // Create reviews
-        $review1 = Review::create([
-            'service_id' => $service1->id,
-            'reviewer_id' => $user2->id,
-            'reviewee_id' => $user1->id,
-            'comment' => 'John did an excellent job building my website. Highly recommended!',
-            'rating' => 5,
-            'type' => 'received',
-        ]);
+        
 
-        $review2 = Review::create([
-            'service_id' => $service2->id,
-            'reviewer_id' => $user1->id,
-            'reviewee_id' => $user2->id,
-            'comment' => 'Jane helped me optimize my database queries, and the performance improvements were amazing!',
-            'rating' => 4,
-            'type' => 'received',
-        ]);
-
-        $review3 = Review::create([
-            'service_id' => $service1->id,
-            'reviewer_id' => $user1->id,
-            'reviewee_id' => $user2->id,
-            'comment' => 'Jane requested my web development service and was a pleasure to work with.',
-            'rating' => 4,
-            'type' => 'left',
-        ]);
-
-        $review4 = Review::create([
-            'service_id' => $service2->id,
-            'reviewer_id' => $user2->id,
-            'reviewee_id' => $user1->id,
-            'comment' => 'John provided valuable insights into database optimization.',
-            'rating' => 5,
-            'type' => 'left',
-        ]);
+       
     }
 }

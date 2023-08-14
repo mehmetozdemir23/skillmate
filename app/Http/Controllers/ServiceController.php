@@ -11,47 +11,80 @@ use Illuminate\View\View;
 
 class ServiceController extends Controller
 {
-    public function serviceBoard(Request $request): View
+    public function allServices(Request $request): View
     {
         $request->validate([
-            'search'=>'nullable|string|max:255'
+            'search' => 'nullable|string|max:255',
+            'filter-by-skill' => 'nullable|numeric|exists:skills,id',
+            'sort-by-date' => 'nullable|string|in:newest,oldest'
         ]);
 
         $user = Auth::user();
-        $services = Service::whereNot('user_id', $user->id);
+        $services = Service::whereDoesntHave(
+            'requests',
+            function ($query) use ($user) {
+                $query->where('sender_id', $user->id);
+            }
+        )->whereDoesntHave(
+            'missions',
+            function ($query) use ($user) {
+                $query->where('receiver_id', $user->id)
+                    ->whereNot('status', 'completed');
+            }
+        )->where('user_id', '!=', $user->id);
 
         $search = $request->search;
-        if($search){
-            $services = $services->where('title','LIKE','%'.$search.'%')
-            ->orWhere('description','LIKE','%'.$search.'%');
+        if ($search) {
+            $services = $services->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%');
         }
 
-        $services = $services->get();
+        $filterBySkill = $request->get('filter-by-skill');
+        if ($filterBySkill) {
+            $services->where('skill_id', $filterBySkill);
+        }
 
-        return view('pages.service-board', compact('services'));
+        $sortByDateOrder = $request->get('sort-by-date', 'newest') == 'newest' ? 'asc' : 'desc';
+        $services->orderBy('created_at', $sortByDateOrder);
+
+        $services = $services->with(['user' => function ($query) {
+            $query->select(['id', 'name', 'email', 'avatar']);
+        }])->get();
+
+        $skills = $services->pluck('skill')->unique();
+
+        return view('pages.service-board', compact('services', 'skills'));
     }
 
-    public function userServices(Request $request): View
+    public function index(Request $request): View
     {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'filter-by-skill' => 'nullable|numeric|exists:skills,id',
+            'sort-by-date' => 'nullable|string|in:newest,oldest'
+        ]);
+
         $user = Auth::user();
-        $userServices = $user->services();
-        $skills = $userServices->get()->pluck('skill')->unique();
+        $services = $user->services();
 
-        if ($request->filled('filter-by-search')) {
-            $userServices->where('title', 'LIKE', '%' . $request->get('filter-by-search') . '%')
-                ->orWhere('description', 'LIKE', '%' . $request->get('filter-by-search') . '%');
+        $filterBySkill = $request->get('filter-by-skill');
+        if ($filterBySkill) {
+            $services->where('skill_id', $filterBySkill);
         }
 
-        if ($request->filled('filter-by-skill')) {
-            $userServices->where('skill_id', $request->get('filter-by-skill'));
-        }
+        $sortOrder = $request->input('sort-by-date', 'newest') == 'newest' ? 'asc' : 'desc';
+        $services->orderBy('created_at', $sortOrder);
 
-        $sortOrder = $request->input('sort-by-time', 'newest');
-        $userServices->orderBy('created_at', $sortOrder === 'oldest' ? 'asc' : 'desc');
+        $services = $services->get();
+        $skills = $services->pluck('skill')->unique();
 
-        $userServices = $userServices->paginate(3);
+        return view('pages.services.index', compact('services', 'skills'));
+    }
 
-        return view('pages.services.userServices', compact('userServices', 'skills'));
+    public function showReviews(Service $service): View
+    {
+        $service->load('reviews.reviewer');
+        return view('pages.services.service-reviews', compact('service'));
     }
 
     public function create(): View
@@ -67,7 +100,7 @@ class ServiceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:services,title',
             'description' => 'required|string',
             'skill_id' => 'required|exists:skills,id',
         ]);
