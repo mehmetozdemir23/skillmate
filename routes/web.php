@@ -16,7 +16,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::patch('/profile/update-avatar', [ProfileController::class, 'updateAvatar'])->name('profile.updateAvatar');
+    Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
+    Route::delete('/profile/account',[ProfileController::class, 'deleteAccount'])->name('profile.account.delete');
+
     Route::patch('/profile/update-info', [ProfileController::class, 'updateInfo'])->name('profile.updateInfo');
     Route::patch('/profile/update-password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
 
@@ -32,7 +35,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/{mission}/end', [MissionController::class, 'end'])->name('end');
         });
 
-        // Routes liées aux revues
         Route::prefix('/{mission}')->group(function () {
             Route::get('/review/create', [ReviewController::class, 'create'])->name('reviews.create');
             Route::post('/review/store', [ReviewController::class, 'store'])->name('reviews.store');
@@ -58,7 +60,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/create', [ServiceRequestController::class, 'create'])->name('create');
                 Route::post('/store', [ServiceRequestController::class, 'store'])->name('store');
 
-                // Routes liées aux demandes de service spécifiques
                 Route::prefix('/{serviceRequest}')->group(function () {
                     Route::get('/', [ServiceRequestController::class, 'show'])->name('show');
                     Route::post('/accept', [ServiceRequestController::class, 'accept'])->name('accept');

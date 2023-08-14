@@ -6,5 +6,6 @@
         @include('includes.profile.skills')
         @include('includes.profile.general-info')
         @include('includes.profile.password')
+        @include('includes.profile.delete-account')
     </div>
 @endsection

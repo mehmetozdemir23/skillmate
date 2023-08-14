@@ -67,7 +67,8 @@ class ProfileController extends Controller
         $uploadedFile->storeAs('avatars', $avatarName, 'public');
 
         $user = Auth::user();
-        if ($user->avatar == 'default-avatar.png') {
+
+        if ($user->avatar != 'default-avatar.svg') {
             Storage::disk('public')->delete('avatars/' . $user->avatar);
         }
         $user->avatar = $avatarName;
@@ -76,27 +77,43 @@ class ProfileController extends Controller
         return back()->with('success', 'Avatar updated successfully.');
     }
 
+    /**
+     * Delete the user's avatar.
+     */
+    public function deleteAvatar(): RedirectResponse
+    {
+        $user = Auth::user();
 
-    // /**
-    //  * Delete the user's account.
-    //  */
-    // public function destroy(Request $request): RedirectResponse
-    // {
-    //     $request->validateWithBag('userDeletion', [
-    //         'password' => ['required', 'current_password'],
-    //     ]);
+        Storage::disk('public')->delete('avatars/' . $user->avatar);
 
-    //     $user = $request->user();
+        $user->avatar = null;
+        $user->save();
 
-    //     Auth::logout();
+        return back()->with('success', 'Avatar deleted successfully.');
+    }
 
-    //     $user->delete();
-
-    //     $request->session()->invalidate();
-    //     $request->session()->regenerateToken();
-
-    //     return Redirect::to('/');
-    // }
+    /**
+     * Delete the user's account.
+     */
+    public function deleteAccount(Request $request): RedirectResponse
+    {
+        // $request->validateWithBag('userDeletion', [
+        //     'password' => ['required', 'current_password'],
+        // ]);
 
 
+        $user = $request->user();
+        if ($user->avatar != 'default-avatar.svg') {
+            Storage::disk('public')->delete('avatars/' . $user->avatar);
+        }
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
 }
