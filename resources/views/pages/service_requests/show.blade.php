@@ -8,64 +8,53 @@
         $requestedService = $serviceRequest->service;
         $backRouteSuffix = $requestSender->id == $user->id ? 'sent' : 'received';
     @endphp
-    <div
-        class="fixed top-0 left-0 right-0 bottom-0 z-50 bg-opacity-50 bg-gray-900 flex justify-center items-center w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-screen max-h-full">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div class="pl-6 pr-4 py-4 border-b flex items-start justify-between">
-                <h2 class="mr-2 text-2xl font-bold text-gray-900">
-                    Request Service: {{ $requestedService->title }}
-                </h2>
-                <a href="{{ route('serviceRequests.' . $backRouteSuffix) }}"
-                    class="flex-shrink-0 text-gray-500 bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </a>
-            </div>
-            <div class="p-6">
-                <div class="flex items-center mb-6">
-                    <div class="flex items-center space-x-4">
-                        <img class="w-16 h-16 rounded-full" src="{{ asset('storage/avatars/' . $requestSender->avatar) }}"
-                            alt="{{ $requestSender->name }}">
-                        <div>
-                            <div class="text-lg font-semibold text-gray-900">{{ $requestSender->name }}</div>
-                            <div class="text-sm text-gray-600">Service Requester</div>
+    <x-modal backRoute="{{ route('serviceRequests.' . $backRouteSuffix) }}">
+        <x-slot:title>
+            Request Service: {{ $requestedService->title }}
+            </x-slot>
+            <x-slot:content>
+                <div class="flex flex-col items-start space-y-4 mb-6">
+                    <a href="{{ route('users.show', ['user' => $requestSender]) }}" class="flex items-center space-x-3">
+                        <img class="w-12 h-12 sm:w-16 sm:h-16 rounded-full"
+                            src="{{ asset('storage/avatars/' . $requestSender->avatar) }}" alt="{{ $requestSender->name }}">
+                        <div class="flex flex-col">
+                            <div class="sm:text-lg font-semibold text-gray-900">{{ $requestSender->name }}</div>
+                            <div class="text-xs sm:text-sm text-gray-600">Service Requester</div>
                         </div>
-                    </div>
-                </div>
-                <hr class="border-t border-gray-200 my-4">
-                <div class="flex items-center mb-6">
-                    <div class="flex items-center space-x-4">
-                        <img class="w-16 h-16 rounded-full" src="{{ asset('storage/avatars/' . $requestReceiver->avatar) }}"
-                            alt="{{ $requestReceiver->name }}">
-                        <div>
-                            <div class="text-lg font-semibold text-gray-900">{{ $requestReceiver->name }}</div>
-                            <div class="text-sm text-gray-600">Service Provider</div>
+                    </a>
+                    <div class="w-full pl-6 sm:pl-8 my-4">
+                        <div class="w-full h-4 border-l-2 border-gray-300"></div>
+                        <div class="w-full border-l-2 border-gray-300 pl-4 flex flex-col items-center">
+                            <div class="w-full bg-blue-100 p-4 rounded-lg">
+                                <p class="max-h-48 overflow-y-scroll text-clip text-gray-800">{{ $serviceRequest->notes }}
+                                </p>
+                            </div>
                         </div>
+                        <div class="h-4 border-l-2 border-gray-300"></div>
                     </div>
+                    <a href="{{ route('users.show', ['user' => $requestReceiver]) }}" class="flex items-center space-x-3">
+                        <img class="w-12 h-12 sm:w-16 sm:h-16 rounded-full"
+                            src="{{ asset('storage/avatars/' . $requestReceiver->avatar) }}" alt="{{ $requestReceiver->name }}">
+                        <div class="flex flex-col">
+                            <div class="sm:text-lg font-semibold text-gray-900">{{ $requestReceiver->name }}</div>
+                            <div class="text-xs sm:text-sm text-gray-600">Service Provider</div>
+                        </div>
+                    </a>
                 </div>
-                <label for="notes" class="block text-sm font-semibold mb-2">Notes:</label>
-                <textarea id="notes" name="notes"
-                    class="block w-full p-3 text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-300 focus:ring focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 resize-none"
-                    readonly>{{ $serviceRequest->notes }}</textarea>
-            </div>
-            @if ($requestReceiver->id == $user->id)
-                <div class="flex space-x-2 p-6">
-                    @if ($serviceRequest->status == 'accepted')
-                        @include('includes.service_requests.undo-button')
-                        @include('includes.service_requests.decline-button')
-                    @elseif($serviceRequest->status == 'declined')
-                        @include('includes.service_requests.accept-button')
-                        @include('includes.service_requests.undo-button')
-                    @else
-                        @include('includes.service_requests.accept-button')
-                        @include('includes.service_requests.decline-button')
-                    @endif
-                </div>
-            @endif
-        </div>
-    </div>
+                @if ($requestReceiver->id == $user->id && $serviceRequest->status != 'completed')
+                    <div class="flex space-x-2 mt-4">
+                        @if ($serviceRequest->status == 'accepted')
+                            @include('includes.service_requests.undo-button')
+                            @include('includes.service_requests.decline-button')
+                        @elseif ($serviceRequest->status == 'declined')
+                            @include('includes.service_requests.accept-button')
+                            @include('includes.service_requests.undo-button')
+                        @else
+                            @include('includes.service_requests.accept-button')
+                            @include('includes.service_requests.decline-button')
+                        @endif
+                    </div>
+                @endif
+                </x-slot>
+    </x-modal>
 @endsection

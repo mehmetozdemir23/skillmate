@@ -25,14 +25,14 @@
                 ];
                 $statusColor = $statusColorClasses[$missionStatus] ?? $statusColorClasses['default'];
             @endphp
-            <span class="text-xs font-semibold mr-2 px-2.5 py-1 rounded {{ $statusColor }}">
-                {{ Str::headline($missionStatus) }}
-            </span>
+            @if ($mission->receiver->id == $user->id || $missionStatus == 'completed')
+                <span class="text-xs font-semibold mr-2 px-2.5 py-1 rounded {{ $statusColor }}">
+                    {{ Str::headline($missionStatus) }}
+                </span>
+            @endif
             @if ($mission->review)
                 <div class="flex space-x-1 items-center">
-                    <span>
-                        {{ number_format($mission->review->rating, 1) }}
-                    </span>
+                    <span>{{ number_format($mission->review->rating, 1) }}</span>
                     <img src="{{ asset('assets/icons/star.svg') }}" alt="" class="h-4 mt-[2px]">
                 </div>
             @endif
@@ -49,29 +49,17 @@
                 @endif
             @else
                 @if ($missionStatus == 'pending')
-                    <form action="{{ route('missions.start', ['mission' => $mission]) }}" method="POST"
-                        class="flex space-x-2">
+                    <form action="{{ route('missions.start', ['mission' => $mission]) }}" method="POST">
                         @csrf
                         <button type="submit"
                             class="inline-flex items-center font-semibold text-sm text-white px-3 py-2 rounded-lg bg-green-500 hover:bg-green-600 focus:bg-green-600">
                             <img src="{{ asset('assets/icons/rocket.svg') }}" alt="" class="h-6 mr-2">
                             Start
                         </button>
-                        <button type="submit" disabled
-                            class="opacity-50 inline-flex items-center font-semibold text-sm text-white px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 focus:bg-indigo-600">
-                            <img src="{{ asset('assets/icons/accept.svg') }}" alt="" class="h-6 mr-2">
-                            End
-                        </button>
                     </form>
                 @elseif ($missionStatus == 'in_progress')
-                    <form action="{{ route('missions.end', ['mission' => $mission]) }}" method="POST"
-                        class="flex space-x-2">
+                    <form action="{{ route('missions.end', ['mission' => $mission]) }}" method="POST">
                         @csrf
-                        <button type="submit" disabled
-                            class="opacity-50 inline-flex items-center font-semibold text-sm text-white px-3 py-2 rounded-lg bg-green-500 hover:bg-green-600 focus:bg-green-600">
-                            <img src="{{ asset('assets/icons/history.svg') }}" alt="" class="h-6 mr-2">
-                            Started
-                        </button>
                         <button type="submit"
                             class="inline-flex items-center font-semibold text-sm text-white px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 focus:bg-indigo-600">
                             <img src="{{ asset('assets/icons/accept.svg') }}" alt="" class="h-6 mr-2">

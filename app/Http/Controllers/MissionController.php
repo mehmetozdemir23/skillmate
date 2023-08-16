@@ -4,19 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Mission;
 use App\Models\ServiceRequest;
-use Illuminate\Contracts\View\View;
+use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class MissionController extends Controller
 {
+    /**
+     * Display the list of missions based on filters and sorting.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request
+     * @return \Illuminate\View\View The view for the list of missions
+     */
     public function index(Request $request): View
     {
         $request->validate([
             'filter-by-type' => 'nullable|string|in:proposed,received',
             'filter-by-status' => 'nullable|string|in:pending,in_progress,completed',
-            'sort_by_date' => 'nullable|string|in:newest,oldest'
+            'sort-by-date' => 'nullable|string|in:newest,oldest'
         ]);
 
         $user = Auth::user();
@@ -45,6 +51,12 @@ class MissionController extends Controller
         return view('pages.missions.index', compact('missions', 'statuses'));
     }
 
+    /**
+     * Start a mission and update its status to 'in_progress'.
+     *
+     * @param \App\Models\Mission $mission The mission to start
+     * @return \Illuminate\Http\RedirectResponse The redirect response
+     */
     public function start(Mission $mission): RedirectResponse
     {
         $mission->status = 'in_progress';
@@ -59,6 +71,12 @@ class MissionController extends Controller
         return redirect()->route('missions.index');
     }
 
+    /**
+     * End a mission and update its status to 'completed'.
+     *
+     * @param \App\Models\Mission $mission The mission to end
+     * @return \Illuminate\Http\RedirectResponse The redirect response
+     */
     public function end(Mission $mission): RedirectResponse
     {
         $mission->status = 'completed';
@@ -66,4 +84,5 @@ class MissionController extends Controller
 
         return redirect()->route('missions.index');
     }
+
 }

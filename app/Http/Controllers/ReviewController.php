@@ -11,11 +11,24 @@ use Illuminate\View\View;
 
 class ReviewController extends Controller
 {
+    /**
+     * Display the review creation form.
+     *
+     * @param  \App\Models\Mission  $mission
+     * @return \Illuminate\View\View
+     */
     public function create(Mission $mission): View
     {
         return view('pages.reviews.create', compact('mission'));
     }
 
+    /**
+     * Store a new review for a mission.
+     *
+     * @param  \App\Models\Mission  $mission
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Mission $mission, Request $request): RedirectResponse
     {
         $request->validate([
@@ -31,6 +44,6 @@ class ReviewController extends Controller
             'rating' => $request->get('rating'),
         ]);
 
-        return redirect()->route('missions.index');
+        return back();
     }
 }

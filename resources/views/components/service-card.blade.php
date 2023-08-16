@@ -1,44 +1,38 @@
 @props(['service'])
 
-<article class="md:w-96 bg-white rounded-lg shadow-md hover:shadow-lg dark:bg-gray-700 p-6">
-    <header class="flex flex-col md:flex-row items-center justify-between text-xl font-semibold text-gray-800 mb-4">
-        <div>{{ $service->title }}</div>
-        <div class="mt-2 md:mt-0 text-sm text-gray-700 flex items-center">
+<article class="bg-white rounded-lg shadow-md hover:shadow-lg p-4 flex flex-col">
+    <div class="flex-1 flex flex-col">
+        <header class="text-xl font-semibold text-gray-800 mb-4">{{ $service->title }}</header>
+        <p class="text-gray-600 leading-snug mb-4">{{ $service->description }}</p>
+        <div class="mt-auto flex items-center space-x-4 mb-4">
             @if ($service->reviews->count() > 0)
                 @php
                     $averageRating = $service->reviews->avg('rating');
                 @endphp
-                <span class="mr-2">
-                    {{ number_format($averageRating, 1) }}
-                </span>
-                <img src="{{ asset('assets/icons/star.svg') }}" alt="" class="h-4">
+                <div class="flex items-center space-x-1 text-sm text-gray-700">
+                    <span class="font-semibold">{{ number_format($averageRating, 1) }}</span>
+                    <img src="{{ asset('assets/icons/star.svg') }}" alt="Star" class="h-4">
+                </div>
                 <a href="{{ route('reviews.show', ['service' => $service]) }}"
-                    class="text-xs text-blue-500 hover:underline ml-1">
-                    View All
-                </a>
+                    class="text-sm text-blue-500 hover:underline">View All Reviews</a>
             @else
                 <span class="text-gray-500">No reviews yet</span>
             @endif
         </div>
-    </header>
-    <div class="text-gray-600 leading-snug h-20 overflow-hidden mb-4">{{ $service->description }}</div>
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center pt-4 border-t border-gray-300">
-        <a href="{{ route('users.show', ['user' => $service->user]) }}"
-            class="flex-shrink-0 flex items-center space-x-4 group mb-6 md:mb-0">
+    </div>
+    <div
+        class="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 text-sm text-gray-700 border-t border-gray-300">
+        <a href="{{ route('users.show', ['user' => $service->user]) }}" class="flex items-center mb-4 sm:mr-8 sm:mb-0">
             <img src="{{ asset('storage/avatars/' . $service->user->avatar) }}" alt="{{ $service->user->name }} Avatar"
-                class="w-12 h-12 rounded-full">
+                class="w-10 h-10 rounded-full mr-3">
             <div>
-                <div class="text-sm text-gray-900 group-hover:underline">
-                    {{ $service->user->name }}
-                </div>
-                <div class="text-xs text-gray-500">
-                    {{ $service->skill->name }}
-                </div>
+                <p class="text-gray-900 font-semibold">{{ $service->user->name }}</p>
+                <p class="w-max text-xs text-gray-600">{{ $service->skill->name }}</p>
             </div>
         </a>
         <a href="{{ route('serviceRequests.create', ['service' => $service]) }}"
-            class="w-full text-center md:w-max px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg md:rounded-full text-sm font-semibold">
-            Ask Service
+            class="w-full flex-shrink-0 sm:w-max text-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg sm:rounded-full text-sm font-semibold">
+            Ask for Service
         </a>
     </div>
 </article>

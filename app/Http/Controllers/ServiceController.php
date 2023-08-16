@@ -11,6 +11,12 @@ use Illuminate\View\View;
 
 class ServiceController extends Controller
 {
+    /**
+     * Display all available services.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function allServices(Request $request): View
     {
         $request->validate([
@@ -26,12 +32,12 @@ class ServiceController extends Controller
                 $query->where('sender_id', $user->id);
             }
         )->whereDoesntHave(
-            'missions',
-            function ($query) use ($user) {
-                $query->where('receiver_id', $user->id)
-                    ->whereNot('status', 'completed');
-            }
-        )->where('user_id', '!=', $user->id);
+                'missions',
+                function ($query) use ($user) {
+                    $query->where('receiver_id', $user->id)
+                        ->where('status', '<>', 'completed');
+                }
+            )->where('user_id', '!=', $user->id);
 
         $search = $request->search;
         if ($search) {
@@ -47,15 +53,23 @@ class ServiceController extends Controller
         $sortByDateOrder = $request->get('sort-by-date', 'newest') == 'newest' ? 'asc' : 'desc';
         $services->orderBy('created_at', $sortByDateOrder);
 
-        $services = $services->with(['user' => function ($query) {
-            $query->select(['id', 'name', 'email', 'avatar']);
-        }])->get();
+        $services = $services->with([
+            'user' => function ($query) {
+                $query->select(['id', 'name', 'email', 'avatar']);
+            }
+        ])->get();
 
         $skills = $services->pluck('skill')->unique();
 
         return view('pages.service-board', compact('services', 'skills'));
     }
 
+    /**
+     * Display the services created by the authenticated user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request): View
     {
         $request->validate([
@@ -81,22 +95,48 @@ class ServiceController extends Controller
         return view('pages.services.index', compact('services', 'skills'));
     }
 
+    /**
+     * Display reviews for a specific service.
+     *
+     * @param  \App\Models\Service  $service
+     * @return \Illuminate\View\View
+     */
     public function showReviews(Service $service): View
     {
         $service->load('reviews.reviewer');
         return view('pages.services.service-reviews', compact('service'));
     }
 
+    /**
+     * Display the service creation form.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create(): View
     {
-        return view('pages.services.create');
+        $user = Auth::user();
+        $skills = $user->skills;
+
+        return view('pages.services.create', compact('skills'));
     }
 
+    /**
+     * Display the service edit form.
+     *
+     * @param  \App\Models\Service  $service
+     * @return \Illuminate\View\View
+     */
     public function edit(Service $service): View
     {
         return view('pages.services.edit', compact('service'));
     }
 
+    /**
+     * Store a new service.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request): RedirectResponse
     {
         $validator = Validator::make($request->all(), [
@@ -111,6 +151,7 @@ class ServiceController extends Controller
                 ->withInput();
         }
 
+        // Create and save the new service
         $service = new Service;
         $service->title = $request->title;
         $service->description = $request->description;
@@ -122,7 +163,14 @@ class ServiceController extends Controller
         return redirect()->route('services.index')->with('success', 'New service created successfully.');
     }
 
-    public function update(Request $request, Service $service)
+    /**
+     * Update a service.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Service  $service
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, Service $service): RedirectResponse
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -141,6 +189,12 @@ class ServiceController extends Controller
         return redirect()->route('services.index')->with('success', 'Service updated successfully.');
     }
 
+    /**
+     * Delete a service.
+     *
+     * @param  \App\Models\Service  $service
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Service $service): RedirectResponse
     {
         $service->delete();

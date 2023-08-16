@@ -19,7 +19,7 @@ class PasswordController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'new_password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
         if ($validator->fails()) {
@@ -30,7 +30,7 @@ class PasswordController extends Controller
 
 
         $user = Auth::user();
-        $user->password = Hash::make($request->password);
+        $user->password = Hash::make($request->get('new_password'));
         $user->save();
 
         return back()->with('success', 'Password updated successfully.');

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Skill;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +14,9 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile
+     * Display the user's profile.
+     *
+     * @return \Illuminate\View\View
      */
     public function show(): View
     {
@@ -24,6 +26,9 @@ class ProfileController extends Controller
 
     /**
      * Update the user's profile information.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateInfo(Request $request): RedirectResponse
     {
@@ -54,6 +59,9 @@ class ProfileController extends Controller
 
     /**
      * Update the user's avatar.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateAvatar(Request $request): RedirectResponse
     {
@@ -79,6 +87,8 @@ class ProfileController extends Controller
 
     /**
      * Delete the user's avatar.
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteAvatar(): RedirectResponse
     {
@@ -93,15 +103,73 @@ class ProfileController extends Controller
     }
 
     /**
+     * Display the form to add a skill.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function addSkillForm(): View
+    {
+        $user = Auth::user();
+        $selectedSkillIds = $user->skills->pluck('id')->toArray();
+        $skills = Skill::whereNotIn('id', $selectedSkillIds)->get();
+
+        return view('pages.profile.add-skill-form', compact('skills'));
+    }
+
+    /**
+     * Store a new skill for the user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeSkill(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'skill_id' => 'required|exists:skills,id'
+        ]);
+
+        $user = Auth::user();
+        $skill = Skill::find($request->get('skill_id'));
+
+        $user->skills()->save($skill);
+
+        return redirect()->route('profile.show')->with('success', 'New skill added successfully.');
+    }
+
+    /**
+     * Delete a skill for the user.
+     *
+     * @param  \App\Models\Skill  $skill The skill to delete
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deleteSkill(Skill $skill): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $user->skills()->detach($skill);
+        $skillServicesIds = $skill->services->pluck('id')->toArray();
+
+
+        if (!empty($skillServicesIds)) {
+            $skillServices = $user->services()->whereIn('skill_id', $skillServicesIds)->get();
+            foreach ($skillServices as $service) {
+                $service->requests()->delete();
+                $service->user_id = null;
+                $service->save();
+            }
+        }
+
+        return redirect()->route('profile.show')->with('success', 'Skill deleted successfully.');
+    }
+
+    /**
      * Delete the user's account.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteAccount(Request $request): RedirectResponse
     {
-        // $request->validateWithBag('userDeletion', [
-        //     'password' => ['required', 'current_password'],
-        // ]);
-
-
         $user = $request->user();
         if ($user->avatar != 'default-avatar.svg') {
             Storage::disk('public')->delete('avatars/' . $user->avatar);

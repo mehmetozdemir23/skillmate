@@ -52,7 +52,7 @@ class User extends Authenticatable
     protected function avatar(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ?? 'default-avatar.svg'
+            get: fn(?string $value) => $value ?? 'default-avatar.svg'
         );
     }
 
@@ -86,18 +86,4 @@ class User extends Authenticatable
         return $this->hasManyThrough(ServiceRequest::class, Service::class, 'user_id', 'service_id', 'id', 'id');
     }
 
-    public function reviewsLeft(): HasMany
-    {
-        return $this->hasMany(Review::class, 'reviewer_id');
-    }
-
-    public function reviewsReceived(): HasMany
-    {
-        return $this->hasMany(Review::class, 'reviewee_id');
-    }
-
-    public function addSkill(Skill $skill)
-    {
-        $this->skills()->attach($skill);
-    }
 }
