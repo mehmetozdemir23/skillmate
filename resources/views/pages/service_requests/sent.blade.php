@@ -11,7 +11,7 @@
                 routeURL="{{ route('serviceRequests.sent') }}?sort-by-column=created_at&order={{ $sortOrder }}" />
             <x-table-column title="status"
                 routeURL="{{ route('serviceRequests.sent') }}?sort-by-column=status&order={{ $sortOrder }}" />
-            <th scope="col" class="p-4 lg:p-5 ">
+            <th scope="col" class="p-4">
             </th>
             </x-slot>
             <x-slot:body>

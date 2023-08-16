@@ -36,13 +36,13 @@
             {{ $serviceRequest->status }}
         </div>
     </td>
-    <td class="p-4 lg:p-5">
+    <td class="p-4 flex-shrink-0">
         <form
             action="{{ route('serviceRequests.destroy', ['service' => $service, 'serviceRequest' => $serviceRequest]) }}"
             method="post" class="flex justify-center items-start">
             @csrf
             @method('DELETE')
-            <button type="submit">
+            <button type="submit" class="flex-shrink-0">
                 <img src="{{ asset('assets/icons/bin.svg') }}" alt="" class="h-6">
             </button>
         </form>
