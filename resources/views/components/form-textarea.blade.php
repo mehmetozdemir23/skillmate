@@ -2,7 +2,7 @@
 <div {{ $attributes }}>
     @isset($label)
         <label for="{{ $name ?? $id }}"
-            class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white">{{ $label }}</label>
+            class="block mb-2 text-sm font-semibold text-gray-900 ">{{ $label }}</label>
     @endisset
     <textarea id="{{ $name ?? $id }}" name="{{ $name }}" rows="6" placeholder="{{ $placeholder }}"
         required="{{ $required }}" {{ $readonly ? 'readonly' : '' }}

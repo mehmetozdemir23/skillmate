@@ -1,8 +1,8 @@
 @props(['service'])
 <article
-    class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-    <h1 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{{ $service->title }}</h1>
-    <p class="mt-2 text-base text-gray-700 dark:text-gray-400">{{ $service->description }}</p>
+    class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2  sm:p-6 ">
+    <h1 class="mb-2 text-xl font-bold tracking-tight text-gray-900 ">{{ $service->title }}</h1>
+    <p class="mt-2 text-base text-gray-700 ">{{ $service->description }}</p>
     <div class="mt-4 flex flex-col md:flex-row md:justify-between md:items-center">
         <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
             {{ $service->skill->name }}

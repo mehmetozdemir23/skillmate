@@ -1,7 +1,7 @@
 @props(['mission'])
 
 <article
-    class="mb-4 flex flex-col md:flex-row bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm 2xl:col-span-2 dark:border-gray-700 dark:bg-gray-800">
+    class="mb-4 flex flex-col md:flex-row bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm 2xl:col-span-2  ">
     <aside class="h-36 md:h-auto bg-sky-100 w-auto md:w-48 flex flex-col justify-center items-center p-4">
         <img src="{{ asset('storage/avatars/' . $mission->receiver->avatar) }}" alt="{{ $mission->receiver->name }}"
             class="w-16 h-16 rounded-full object-contain mb-2">
