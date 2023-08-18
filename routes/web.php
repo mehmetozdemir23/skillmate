@@ -18,14 +18,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
-    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
-    Route::get('/profile/skills/add', [ProfileController::class, 'addSkillForm'])->name('profile.skills.add');
-    Route::post('/profile/skills', [ProfileController::class, 'storeSkill'])->name('profile.skills.store');
-    Route::delete('/profile/skills/{skill}', [ProfileController::class, 'deleteSkill'])->name('profile.skills.delete');
-    Route::delete('/profile/account', [ProfileController::class, 'deleteAccount'])->name('profile.account.delete');
-    Route::patch('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.info.update');
-    Route::patch('/profile/password', [PasswordController::class, 'update'])->name('profile.password.update');
+    Route::middleware('block_user_edit')->group(function(){
+        Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+        Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
+        Route::get('/profile/skills/add', [ProfileController::class, 'addSkillForm'])->name('profile.skills.add');
+        Route::post('/profile/skills', [ProfileController::class, 'storeSkill'])->name('profile.skills.store');
+        Route::delete('/profile/skills/{skill}', [ProfileController::class, 'deleteSkill'])->name('profile.skills.delete');
+        Route::delete('/profile/account', [ProfileController::class, 'deleteAccount'])->name('profile.account.delete');
+        Route::patch('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.info.update');
+        Route::patch('/profile/password', [PasswordController::class, 'update'])->name('profile.password.update');
+    });
 
     // User routes
     Route::prefix('/users')->group(function () {

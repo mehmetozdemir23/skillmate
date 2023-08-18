@@ -2,7 +2,7 @@
 @section('default-content')
     <h2 class="flex flex-col sm:flex-row sm:items-center font-semibold mb-6">
         <span class="text-3xl mb-4 sm:mb-0">
-            Proposed Services
+            My Services
         </span>
         <a href="{{ route('services.create') }}"
             class="flex items-center flex-shrink-0 text-md w-max px-3 py-2 md:ml-auto font-semibold text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer"

@@ -19,6 +19,7 @@ class ServiceController extends Controller
      */
     public function allServices(Request $request): View
     {
+
         $request->validate([
             'search' => 'nullable|string|max:255',
             'filter-by-skill' => 'nullable|numeric|exists:skills,id',
