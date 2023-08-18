@@ -88,5 +88,10 @@ class DatabaseSeeder extends Seeder
         ];
         Service::insert($user3Services);
 
+        foreach (User::all() as $user) {
+            $userSkills = Skill::inRandomOrder()->take(rand(1, 3))->get();
+            $user->skills()->attach($userSkills);
+        }
+
     }
 }
