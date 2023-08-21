@@ -36,7 +36,7 @@ class ServiceController extends Controller
                 'missions',
                 function ($query) use ($user) {
                     $query->where('receiver_id', $user->id)
-                        ->where('status', '<>', 'completed');
+                        ->where('status', '!=', 'completed');
                 }
             )->where('user_id', '!=', $user->id);
 
@@ -57,7 +57,9 @@ class ServiceController extends Controller
         $services = $services->with([
             'user' => function ($query) {
                 $query->select(['id', 'name', 'email', 'avatar']);
-            }
+            },
+            'reviews:rating',
+            'skill'
         ])->get();
 
         $skills = $services->pluck('skill')->unique();
@@ -90,7 +92,7 @@ class ServiceController extends Controller
         $sortOrder = $request->input('sort-by-date', 'newest') == 'newest' ? 'asc' : 'desc';
         $services->orderBy('created_at', $sortOrder);
 
-        $services = $services->get();
+        $services = $services->with('skill:id,name')->get();
         $skills = $services->pluck('skill')->unique();
 
         return view('pages.services.index', compact('services', 'skills'));
