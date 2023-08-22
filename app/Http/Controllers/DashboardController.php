@@ -17,22 +17,9 @@ class DashboardController extends Controller
         $user = Auth::user();
         $proposedServicesCount = $user->services()->count();
         $pendingServiceRequestsCount = $user->receivedServiceRequests()->count();
-        $missionCounts = $user->missions()
-            ->selectRaw('status, count(*) as count')
-            ->whereIn('status', ['completed', 'in_progress'])
-            ->groupBy('services.user_id','status')
-            ->get();
+        $completedMissionsCount = $user->missions()->where('status', 'completed')->count();
+        $onGoingMissionsCount = $user->missions()->where('status', 'in_progress')->count();
 
-        $completedMissionsCount = 0;
-        $onGoingMissionsCount = 0;
-
-        foreach ($missionCounts as $count) {
-            if ($count->status === 'completed') {
-                $completedMissionsCount = $count->count;
-            } elseif ($count->status === 'in_progress') {
-                $onGoingMissionsCount = $count->count;
-            }
-        }
         return view(
             'pages.dashboard',
             compact(
