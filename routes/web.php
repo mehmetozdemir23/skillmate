@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::prefix('/{mission}')->group(function () {
             Route::get('/review/create', [ReviewController::class, 'create'])->name('reviews.create');
-            Route::post('/review/store', [ReviewController::class, 'store'])->name('reviews.store');
+            Route::post('/review', [ReviewController::class, 'store'])->name('reviews.store');
         });
     });
 
@@ -67,7 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('/{service}')->group(function () {
             Route::prefix('/requests')->name('serviceRequests.')->group(function () {
                 Route::get('/create', [ServiceRequestController::class, 'create'])->name('create');
-                Route::post('/store', [ServiceRequestController::class, 'store'])->name('store');
+                Route::post('/', [ServiceRequestController::class, 'store'])->name('store');
 
                 Route::prefix('/{serviceRequest}')->group(function () {
                     Route::get('/', [ServiceRequestController::class, 'show'])->name('show');

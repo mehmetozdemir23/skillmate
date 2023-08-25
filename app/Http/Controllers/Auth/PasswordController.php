@@ -23,7 +23,7 @@ class PasswordController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()
+            return redirect()->route('profile.show')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -33,6 +33,6 @@ class PasswordController extends Controller
         $user->password = Hash::make($request->get('new_password'));
         $user->save();
 
-        return back()->with('success', 'Password updated successfully.');
+        return redirect()->route('profile.show')->with('success', 'Password updated successfully.');
     }
 }

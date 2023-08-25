@@ -131,6 +131,10 @@ class ServiceRequestController extends Controller
      */
     public function store(Service $service, Request $request): RedirectResponse
     {
+        $request->validate([
+            'notes' => 'nullable|string'
+        ]);
+
         $user = Auth::user();
 
         ServiceRequest::create([
@@ -189,7 +193,7 @@ class ServiceRequestController extends Controller
         $serviceRequest->status = 'pending';
         $serviceRequest->save();
 
-        return back();
+        return redirect()->route('serviceRequests.received');
     }
 
     /**
@@ -203,6 +207,6 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest->delete();
 
-        return back();
+        return redirect()->route('serviceRequests.received');
     }
 }

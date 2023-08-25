@@ -11,7 +11,7 @@ class Mission extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['service_id', 'receiver_id'];
+    protected $fillable = ['service_id', 'receiver_id','status'];
 
     public function service(): BelongsTo
     {

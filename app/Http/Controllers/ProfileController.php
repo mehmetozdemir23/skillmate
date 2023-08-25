@@ -40,7 +40,7 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()
+            return redirect()->route('profile.show')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -54,7 +54,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return back()->with('success', 'Profile information updated successfully.');
+        return redirect()->route('profile.show')->with('success', 'Profile information updated successfully.');
     }
 
     /**
@@ -72,17 +72,18 @@ class ProfileController extends Controller
         $uploadedFile = $request->file('avatar');
         $avatarName = $uploadedFile->hashName();
 
-        $uploadedFile->storeAs('avatars', $avatarName, 'public');
+        $uploadedFile->storeAs('public/avatars', $avatarName);
 
         $user = Auth::user();
 
         if ($user->avatar != 'default-avatar.svg') {
             Storage::disk('public')->delete('avatars/' . $user->avatar);
         }
+
         $user->avatar = $avatarName;
         $user->save();
 
-        return back()->with('success', 'Avatar updated successfully.');
+        return redirect()->route('profile.show')->with('success', 'Avatar updated successfully.');
     }
 
     /**
@@ -94,12 +95,14 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        Storage::disk('public')->delete('avatars/' . $user->avatar);
+        if($user->avatar != 'default-avatar.svg'){
+            Storage::disk('public')->delete('avatars/' . $user->avatar);
+        }
 
         $user->avatar = null;
         $user->save();
 
-        return back()->with('success', 'Avatar deleted successfully.');
+        return redirect()->route('profile.show')->with('success', 'Avatar deleted successfully.');
     }
 
     /**
@@ -129,9 +132,13 @@ class ProfileController extends Controller
         ]);
 
         $user = Auth::user();
-        $skill = Skill::find($request->get('skill_id'));
 
-        $user->skills()->save($skill);
+        $skill = Skill::find($request->get('skill_id'));
+        if(!$skill){
+            return redirect()->route('profile.show');
+        }
+
+        $user->skills()->attach($skill);
 
         return redirect()->route('profile.show')->with('success', 'New skill added successfully.');
     }

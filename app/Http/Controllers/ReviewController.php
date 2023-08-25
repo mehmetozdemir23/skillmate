@@ -36,6 +36,10 @@ class ReviewController extends Controller
             'comment' => 'required|string|max:500',
         ]);
 
+        if ($mission->status != 'completed') {
+            return redirect()->route('missions.index');
+        }
+
         $user = Auth::user();
         Review::create([
             'mission_id' => $mission->id,
@@ -44,6 +48,6 @@ class ReviewController extends Controller
             'rating' => $request->get('rating'),
         ]);
 
-        return back();
+        return redirect()->route('missions.index');
     }
 }

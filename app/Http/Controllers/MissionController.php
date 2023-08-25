@@ -62,11 +62,11 @@ class MissionController extends Controller
         $mission->status = 'in_progress';
         $mission->save();
 
-        $serviceRequest = ServiceRequest::whereHas('service', function ($query) use ($mission) {
+        /*$serviceRequest = ServiceRequest::whereHas('service', function ($query) use ($mission) {
             $query->where('services.id', $mission->service->id);
         })->first();
 
-        $serviceRequest->delete();
+        $serviceRequest->delete();*/
 
         return redirect()->route('missions.index');
     }
